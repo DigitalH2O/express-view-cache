@@ -12,20 +12,7 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
     } else {
         invalidateTimeInMilliseconds=60*1000; //1 minute
     }
-    if (parameters && parameters.driver) {
-        switch (parameters.driver) {
-            case 'memjs':
-                cache = adapterMemJS;
-                break;
-            case 'redis':
-                cache = adapterRedis;
-                break;
-            default :
-                cache = adapterMemory;
-        }
-    } else {
-        cache = adapterMemory;
-    }
+    cache = adapterRedis;
 
     return function(request,response,next){
         if(parameters && parameters.type){
@@ -34,12 +21,11 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
         if (request.method == 'GET') {
             cache.get(request.originalUrl,function(err,value){
                 if(value){
-                    console.log('FRONT_CACHE HIT: GET '+request.originalUrl);
-                    response.header('Cache-Control', "public, max-age="+Math.floor(invalidateTimeInMilliseconds/1000)+", must-revalidate");
+                    console.log('CACHE HIT: GET '+request.originalUrl);
+                    response.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
                     response.send(value);
                     return true;
                 } else {
-                    //http://stackoverflow.com/questions/13690335/node-js-express-simple-middleware-to-output-first-few-characters-of-response?rq=1
                     var end = response.end;
                     response.end = function(chunk, encoding){
                         response.end = end;
@@ -47,13 +33,13 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                             cache.set(request.originalUrl,chunk,function(err,result){
                                 if(err) throw err;
                                 if(result){
-                                    console.log('FRONT_CACHE SAVED: GET '+request.originalUrl);
+                                    console.log('CACHE SAVED: GET '+request.originalUrl);
                                 } else {
-                                    console.log('FRONT_CACHE ERROR SAVING: GET '+request.originalUrl)
+                                    console.log('CACHE ERROR SAVING: GET '+request.originalUrl)
                                 }
                             },invalidateTimeInMilliseconds);
                         });
-                        response.header('Cache-Control', "public, max-age="+Math.floor(invalidateTimeInMilliseconds/1000)+", must-revalidate");
+                        response.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
                         response.end(chunk, encoding);
                     };
                     return next();
