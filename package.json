@@ -1,14 +1,14 @@
 {
   "name": "express-view-cache",
-  "version": "0.0.6",
-  "description": "Unobtrusive solution to express framework - cache rendered page on server side, without unnecessary database requests and rendering.",
+  "version": "0.0.7",
+  "description": "Fork of https://github.com/vodolaz095/express-view-cache",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/vows --spec tests/*"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:vodolaz095/express-view-cache.git"
+    "url": "https://github.com/wescleveland/express-view-cache.git"
   },
   "bugs": {
     "url": "https://github.com/vodolaz095/express-view-cache/issues"

@@ -21,7 +21,7 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
         if (request.method == 'GET') {
             cache.get(request.originalUrl,function(err,value){
                 if(value){
-                    console.log('CACHE HIT: GET '+request.originalUrl);
+                    console.log('[CACHE] HIT: GET '+request.originalUrl);
                     response.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
                     response.send(value);
                     return true;
@@ -30,14 +30,18 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                     response.end = function(chunk, encoding){
                         response.end = end;
                         response.on('finish',function(){
-                            cache.set(request.originalUrl,chunk,function(err,result){
-                                if(err) throw err;
-                                if(result){
-                                    console.log('CACHE SAVED: GET '+request.originalUrl);
-                                } else {
-                                    console.log('CACHE ERROR SAVING: GET '+request.originalUrl)
-                                }
-                            },invalidateTimeInMilliseconds);
+                            if (this.statusCode === 200) {
+                                cache.set(request.originalUrl,chunk,function(err,result){
+                                    if(err) throw err;
+                                    if(result){
+                                        console.log('[CACHE] SAVED: GET '+request.originalUrl);
+                                    } else {
+                                        console.log('[CACHE] ERROR SAVING: GET '+request.originalUrl)
+                                    }
+                                },invalidateTimeInMilliseconds);
+                            } else {
+                                console.log("[CACHE] RESPONSE CODE WAS "+this.statusCode+", NOT CACHING");
+                            };
                         });
                         response.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
                         response.end(chunk, encoding);
