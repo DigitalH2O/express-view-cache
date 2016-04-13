@@ -1,10 +1,16 @@
-var adapterMemory = require('./lib/adapterMemory.js'),
+var crypto = require('crypto')
+    adapterMemory = require('./lib/adapterMemory.js'),
     adapterMemJS = require('./lib/adapterMemJS.js'),
     adapterRedis = require('./lib/adapterRedis.js');
 
+
+//returns a unique hash based on the passed string
+var getHash = function(stringToHash) {
+    return crypto.createHash('sha256').update(stringToHash).digest('hex');
+};
+
 // Caching middleware for Express framework
 // details are here https://github.com/vodolaz095/express-view-cache
-
 
 module.exports=function(invalidateTimeInMilliseconds,parameters){
     if(invalidateTimeInMilliseconds && /^\d+$/.test(invalidateTimeInMilliseconds)){
@@ -18,11 +24,19 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
         if(parameters && parameters.type){
             response.type(parameters.type);
         }
-        if (request.method == 'GET') {
+        if (request.method === 'GET') {
             cache.get(request.originalUrl,function(err,value){
                 if(value){
                     console.log('[CACHE] HIT: GET '+request.originalUrl);
-                    response.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+
+                    var contentHash = getHash(value);
+                    if (request.get('ETag') === contentHash) {
+                        response.status(304).end();
+                        return true;
+                    }
+
+                    response.header('Cache-Control', 'private, no-cache');
+                    response.header('ETag', contentHash);
                     response.send(value);
                     return true;
                 } else {
@@ -43,7 +57,8 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                                 console.log("[CACHE] RESPONSE CODE WAS "+this.statusCode+", NOT CACHING");
                             };
                         });
-                        response.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+                        response.header('Cache-Control', 'private, no-cache');
+                        response.header('ETag', getHash(chunk));
                         response.end(chunk, encoding);
                     };
                     return next();
