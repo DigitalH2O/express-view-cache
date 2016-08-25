@@ -32,13 +32,13 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                     var contentHash = getHash(value);
                     console.log(contentHash);
                     if (request.get('ETag') === contentHash) {
-                        console.log("SENT ETAG!");
+                        console.log("ETAG MATCHED!");
                         response.status(304).end();
                         return true;
                     }
                     response.header('Cache-Control', 'private, no-cache');
                     response.header('ETag', contentHash);
-                    console.log(response.header('ETag'));
+                    console.log("SET ETAG!");
                     response.send(value);
                     return true;
                 } else {
