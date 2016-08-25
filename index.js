@@ -23,7 +23,14 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                 if(value){
                     console.log('[CACHE] HIT: GET '+request.originalUrl);
                     // TODO: Add max-age here
-                    response.header('Cache-Control', 'private, no-cache')
+                    var contentHash = getHash(value);
+                    if (request.get('ETag') === contentHash) {
+                        response.status(304).end();
+                        return true;
+                    }
+
+                    response.header('Cache-Control', 'private, no-cache');
+                    response.header('ETag', contentHash);
                     response.send(value);
                     return true;
                 } else {
