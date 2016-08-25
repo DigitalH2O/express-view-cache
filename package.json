@@ -1,6 +1,6 @@
 {
   "name": "express-view-cache",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Fork of https://github.com/vodolaz095/express-view-cache",
   "main": "index.js",
   "scripts": {
