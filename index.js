@@ -30,13 +30,14 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                     console.log('[CACHE] HIT: GET '+request.originalUrl);
                     // TODO: Add max-age here
                     var contentHash = getHash(value);
+                    console.log(contentHash);
                     if (request.get('ETag') === contentHash) {
+                        console.log("SENT ETAG!");
                         response.status(304).end();
                         return true;
                     }
                     response.header('Cache-Control', 'private, no-cache');
                     response.header('ETag', contentHash);
-                    console.log(contentHash);
                     console.log(response.header('ETag'));
                     response.send(value);
                     return true;
