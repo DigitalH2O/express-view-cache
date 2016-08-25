@@ -34,9 +34,10 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                         response.status(304).end();
                         return true;
                     }
-
                     response.header('Cache-Control', 'private, no-cache');
                     response.header('ETag', contentHash);
+                    console.log(contentHash);
+                    console.log(response.header('ETag'));
                     response.send(value);
                     return true;
                 } else {
