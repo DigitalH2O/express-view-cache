@@ -1,9 +1,15 @@
-var adapterMemory = require('./lib/adapterMemory.js'),
+var crypto = require('crypto'),
+    adapterMemory = require('./lib/adapterMemory.js'),
     adapterMemJS = require('./lib/adapterMemJS.js'),
     adapterRedis = require('./lib/adapterRedis.js');
 
 // Caching middleware for Express framework
 // details are here https://github.com/vodolaz095/express-view-cache
+
+//returns a unique hash based on the passed string
+var getHash = function(stringToHash) {
+    return crypto.createHash('sha256').update(stringToHash).digest('hex');
+};
 
 
 module.exports=function(invalidateTimeInMilliseconds,parameters){
