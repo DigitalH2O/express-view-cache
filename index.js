@@ -6,12 +6,6 @@ var crypto = require('crypto'),
 // Caching middleware for Express framework
 // details are here https://github.com/vodolaz095/express-view-cache
 
-//returns a unique hash based on the passed string
-var getHash = function(stringToHash) {
-    return crypto.createHash('sha256').update(stringToHash).digest('hex');
-};
-
-
 module.exports=function(invalidateTimeInMilliseconds,parameters){
     if(invalidateTimeInMilliseconds && /^\d+$/.test(invalidateTimeInMilliseconds)){
         //it is ok
@@ -29,16 +23,7 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                 if(value){
                     console.log('[CACHE] HIT: GET '+request.originalUrl);
                     // TODO: Add max-age here
-                    var contentHash = getHash(value);
-                    console.log(contentHash);
-                    if (request.get('ETag') === contentHash) {
-                        console.log("ETAG MATCHED!");
-                        response.status(304).end();
-                        return true;
-                    }
                     response.header('Cache-Control', 'private, no-cache');
-                    response.header('ETag', contentHash);
-                    console.log("SET ETAG!");
                     response.send(value);
                     return true;
                 } else {
