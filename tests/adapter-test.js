@@ -90,7 +90,7 @@ vows.describe('Cache Adapters tests')
             assert.isNull(result);
         }
     }})
-// Redis adaprer
+// Redis adapter
     .addBatch({"General test for adapterRedis": {
         "topic": adapterRedis,
         "It should have get and set methods": function (topic) {
