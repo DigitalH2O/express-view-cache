@@ -13,15 +13,15 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
         invalidateTimeInMilliseconds=60*1000; //1 minute
     }
     cache = adapterRedis;
-
+    cacheKey = parameters.cacheKey || 'originalUrl';
     return function(request,response,next){
         if(parameters && parameters.type){
             response.type(parameters.type);
         }
         if (request.method == 'GET') {
-            cache.get(request.originalUrl,function(err,value){
+            cache.get(request[cacheKey] + request['originalUrl'],function(err,value){
                 if(value){
-                    console.log('[CACHE] HIT: GET '+request.originalUrl);
+                    console.log('[CACHE] HIT: GET '+request[cacheKey]+request['originalUrl']);
                     // TODO: Add max-age here
                     response.header('Cache-Control', 'private, no-cache');
                     response.send(value);
@@ -32,12 +32,12 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                         response.end = end;
                         response.on('finish',function(){
                             if (this.statusCode === 200) {
-                                cache.set(request.originalUrl,chunk,function(err,result){
+                                cache.set(request[cacheKey]+request['originalUrl'],chunk,function(err,result){
                                     if(err) throw err;
                                     if(result){
-                                        console.log('[CACHE] SAVED: GET '+request.originalUrl);
+                                        console.log('[CACHE] SAVED: GET '+request[cacheKey]+request['originalUrl']);
                                     } else {
-                                        console.log('[CACHE] ERROR SAVING: GET '+request.originalUrl)
+                                        console.log('[CACHE] ERROR SAVING: GET '+request[cacheKey]+request['originalUrl'])
                                     }
                                 },invalidateTimeInMilliseconds);
                             } else {
