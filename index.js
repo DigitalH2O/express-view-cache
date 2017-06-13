@@ -22,8 +22,6 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
             cache.get(request[cacheKey] + request['originalUrl'],function(err,value){
                 if(value){
                     console.log('[CACHE] HIT: GET '+request[cacheKey]+request['originalUrl']);
-                    // TODO: Add max-age here
-                    response.header('Cache-Control', 'private, no-cache');
                     response.send(value);
                     return true;
                 } else {
@@ -44,8 +42,6 @@ module.exports=function(invalidateTimeInMilliseconds,parameters){
                                 console.log("[CACHE] RESPONSE CODE WAS "+this.statusCode+", NOT CACHING");
                             };
                         });
-                        // TODO: Add max-age here
-                        response.header('Cache-Control', 'private, no-cache')
                         response.end(chunk, encoding);
                     };
                     return next();
